@@ -1,0 +1,137 @@
+@mixin input-group {
+    width: 100%;
+    display: flex;
+    margin: 15px 0 5px 0;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    .icon {
+        width: 7%;
+        height: 40%;
+    }
+    .input-element{
+        width: 90%;
+        border: none;
+        outline: none;
+        padding: 15px 10px;
+        font-size: 1.4rem;
+    }
+    .opened-eye,
+    .closed-eye{
+        font-size: 1.8rem;
+        margin: 0 5px;
+    }
+}
+
+#register {
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-image: linear-gradient(to bottom right, rgb(139, 223, 216), rgb(8, 35, 143));
+    .register-form {
+        width: 30%;
+        background-color: #fff;
+        border-radius: 10px;
+        padding: 10px;
+        box-shadow: 10px 10px 5px #000000;
+        overflow: hidden;
+        .title {
+            width: 100%;
+            margin: 10px 0 50px 0;
+            text-align: center;
+        }
+        .email-group,
+        .password-group,
+        .display-name-group
+        {
+            @include input-group;
+            &.has-error{
+                border: 1px solid red;
+            }
+        }
+        .email-error,
+        .password-error,
+        .display-name-error{
+            font-size: 1.2rem;
+            color: red;
+        }
+        .gioi-tinh{
+            display: flex;
+            margin-top: 20px;
+            .gioi-tinh-title{
+                width: 20%;
+                font-size: 1.3rem;
+            }
+            .gioi-tinh-select{
+                font-size: 1.3rem;
+                width: 80%;
+                display: flex;
+                justify-content: space-evenly;
+            }
+        }
+        .disabled{
+            display: none;
+        }
+        .avatar-upload{
+            width: 100%;
+            display: flex;
+            align-items: center;
+            margin-top: 25px;
+            .avatar-span{
+                width: 40%;
+                font-size: 1.5rem;
+            }
+            .upload-image{
+                margin-right: 40px;
+            }
+            .explain{
+                width: 20%;
+                font-size: 1.8rem;
+                cursor: pointer;
+            }
+        }
+        .submit-button{
+            width: 100%;
+            padding: 15px 10px;
+            border-radius: 5px;
+            margin: 20px 0;
+            border: 1px solid blue;
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #fff;
+            background-color: blue;
+        }
+        .register-link{
+            margin: 20px 0;
+            text-align: center;
+        }
+        .or{
+            text-align: center;
+            margin: 20px 0;
+        }
+        .sign-up-with-google,
+        .sign-up-with-facebook,
+        .sign-up-with-github{
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            border: 1px solid #000;
+            font-size: 1rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            .icon{
+                margin-right: 10px;
+                font-size: 1.8rem;
+            }
+            .facebook-icon{
+                color: blue;
+            }
+        }
+    }
+}

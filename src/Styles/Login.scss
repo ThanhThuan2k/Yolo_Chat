@@ -1,0 +1,174 @@
+@mixin input-group {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+@mixin input-element {
+    width: 90%;
+    padding: 10px 5px;
+    border-radius: 5px;
+    border: none;
+    font-size: 1.2rem;
+}
+
+@mixin input-error {
+    width: 100%;
+    font-size: 0.8rem;
+    color: rgb(207, 19, 19);
+    margin: 5px 0;
+}
+
+@mixin icon {
+    width: 7%;
+    height: 100%;
+}
+
+.login {
+    width: 100%;
+    height: 100vh;
+    background-image: linear-gradient(to bottom right, rgb(139, 223, 216), rgb(8, 35, 143));
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    .login-form {
+        width: 30%;
+        background-color: #fff;
+        border-radius: 10px;
+        padding: 10px;
+        box-shadow: 10px 10px 5px #000000;
+        overflow: hidden;
+        .title {
+            width: 100%;
+            margin: 10px 0 30px 0;
+            text-align: center;
+        }
+        .username-group {
+            @include input-group;
+            margin: 10px 0;
+            .username-input-area {
+                width: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: space-evenly;
+                border: 1px solid #ddd;
+                padding: 5px 0;
+                .icon {
+                    @include icon;
+                }
+                .username-input {
+                    @include input-element;
+                    &:focus{
+                        border: none;
+                        outline: none;
+                    }
+                }
+            }
+            .username-error {
+                @include input-error;
+            }
+            .username-error.disabled {
+                display: none;
+            }
+            .username-error.enabled {
+                display: block;
+            }
+        }
+        .password-group {
+            @include input-group;
+            .password-input-area {
+                width: 100%;
+                display: flex;
+                justify-content: space-evenly;
+                padding: 5px 0;
+                border: 1px solid #ddd;
+                display: flex;
+                align-items: center;
+                .icon {
+                    @include icon;
+                }
+                .password-input {
+                    @include input-element;
+                    &:focus{
+                        border: none;
+                        outline: none;
+                    }
+                }
+                .opened-eye,
+                .closed-eye{
+                    font-size: 1.8rem;
+                    margin: 0 10px;
+                }
+            }
+            .password-error {
+                @include input-error;
+            }
+            .password-error.disabled {
+                display: none;
+            }
+            .password-error.enabled {
+                display: block;
+            }
+        }
+        .remember-me-group{
+            width: 100%;
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+            .remember-me-label{
+                font-size: .9rem;
+                margin-left: 5px;
+                user-select: none;
+                cursor: pointer;
+            }
+        }
+        .submit-button{
+            width: 100%;
+            padding: 20px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            border-radius: 5px;
+            border: 1px solid rgb(9, 13, 240);
+            background-color: rgb(9, 13, 240);
+            outline: none;
+            color: #fff;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        .register-link{
+            width: 100%;
+            margin: 40px 0;
+            text-align: center;
+        }
+        .or{
+            width: 100%;
+            margin: 10px 0;
+            text-align: center;
+        }
+        .sign-in-with-google,
+        .sign-in-with-facebook,
+        .sign-in-with-github{
+            width: 100%;
+            .icon{
+                font-size: 1.8rem;
+                margin-right: 10px;
+            }
+            .facebook-icon{
+                color: blue;
+            }
+            .button{
+                width: 100%;
+                padding: 10px 20px;
+                margin: 5px 0;
+                font-size: 1.2rem;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin: 10px 0;
+                border-radius: 5px;
+                outline: none;
+                border: 1px solid #222;
+            }
+        }
+    }
+}

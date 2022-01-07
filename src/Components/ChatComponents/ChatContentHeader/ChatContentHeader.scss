@@ -1,0 +1,52 @@
+.chat-content-header {
+    width: 100%;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    border-bottom: 1px solid #ddd;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+    .title {
+        width: 70%;
+        .username {
+            font-size: 1.7rem;
+            font-weight: bold;
+            white-space: pre-wrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            -webkit-line-clamp: 1;
+            -webkit-box-orient: vertical;
+            display: -webkit-box;
+        }
+        .last-online{
+            font-size: 1.1rem;
+        }
+    }
+    .button-area{
+        width: 20%;
+        display: flex;
+        justify-content: space-evenly;
+        .call,
+        .call-video,
+        .open-window {
+            width: 60px;
+            height: 60px;
+            background-color: #fff;
+            border-radius: 50%;
+            border: 1px solid #E4E6EB;
+            cursor: pointer;
+            transition: all .3s linear;
+            &:hover{
+                background: #E4E6EB;
+            }
+        }
+        .call-video{
+            width: 60px;
+            height: 60px;
+        }
+        .icon{
+            color: rgb(0, 132, 255);
+            font-size: 1.6rem;
+        }
+    }
+}
