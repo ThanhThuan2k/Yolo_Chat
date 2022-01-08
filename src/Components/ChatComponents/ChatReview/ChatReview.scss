@@ -36,8 +36,12 @@
         .seen-avatar {
             width: 100%;
             height: 100%;
-            object-fit: contain;
+            object-fit: cover;
         }
+    }
+    .turn-off-notification,
+    .sent{
+        font-size: 1.5rem;
     }
 }
 

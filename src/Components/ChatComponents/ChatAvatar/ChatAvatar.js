@@ -5,8 +5,7 @@ export default function ChatAvatar(props) {
         width: props.width,
         height: props.width,
         opacity: props.opacity,
-        marginRight: props.margin > 0 ? '20px' : '0',
-        marginLeft: props.margin < 0 ? '20px' : '0',
+        display: props.display ? 'block' : 'none',
     }
     return (
         <div className="avatar" style={styles}>
@@ -26,5 +25,5 @@ ChatAvatar.defaultProps = {
     displayOnline: false,
     online: false,
     opacity: '1',
-    margin: 1,
+    display: true,
 }

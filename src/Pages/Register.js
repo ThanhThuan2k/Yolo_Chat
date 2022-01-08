@@ -113,6 +113,7 @@ export default function Register() {
                                 avatar: url,
                                 createAt: Date.now(),
                                 isOnline: true,
+                                lastOnline: Date.now(),
                             }).then((value) => {
                                 var jwt = jwtEncode({ email: email, password: password, displayName: displayName, gioiTinh: gioiTinh, avatar: url });
                                 setCookie("jwt", jwt, 30);
@@ -132,6 +133,7 @@ export default function Register() {
                 avatar: defaultAvatar,
                 createAt: Date.now(),
                 isOnline: true,
+                lastOnline: Date.now(),
             }).then((value) => {
                 var jwt = jwtEncode({ email: email, password: password, displayName: displayName, gioiTinh: gioiTinh, avatar: defaultAvatar });
                 if (jwt) {

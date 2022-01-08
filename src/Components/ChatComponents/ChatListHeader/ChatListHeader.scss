@@ -1,7 +1,13 @@
 .chat-list-header{
-    width: 100%;
+    width: 30%;
     background-color: #fff;
+    position: fixed;
+    top: 0;
     padding: 30px 20px;
+    z-index: 555;
+    border-right: 1px solid #ddd;
+    border-bottom: 1px solid #eee;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
     .top{
         width: 100%;
         display: flex;

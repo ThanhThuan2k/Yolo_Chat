@@ -14,7 +14,7 @@ function MyMessage(props) {
     return (
         <div className="message" id="my-message">
             <span className="message-content">{props.message}</span>
-            <ChatAvatar width="50px" displayOnline={false} opacity={props.displayAvatar ? '1' : '0'} margin={-1} />
+            <ChatAvatar width="50px" display={false} displayOnline={false} opacity={props.displayAvatar ? '1' : '0'} margin={-1} />
         </div>
     );
 }

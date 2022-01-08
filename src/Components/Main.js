@@ -28,12 +28,12 @@ export default function Main() {
         //         from: '5oCnN6maiCS9gdIgx4QM',
         //     });
 
-        //     set(ref(db, `5oCnN6maiCS9gdIgx4QM/QbNJ2bdPwXb1ddsJCcRr/${Date.now()}`), {
-        //         createAt: Date.now(),
-        //         content: 'Many message',
-        //         seen: false,
-        //         from: 'QbNJ2bdPwXb1ddsJCcRr',
-        //     });
+        // set(ref(db, `5oCnN6maiCS9gdIgx4QM/QbNJ2bdPwXb1ddsJCcRr/${Date.now()}`), {
+        //     createAt: Date.now(),
+        //     content: 'Hoom nay laf ngafy gif thees',
+        //     seen: false,
+        //     from: 'QbNJ2bdPwXb1ddsJCcRr',
+        // });
         // }
 
         // set(ref(db, `hVjY9iGP6KYQFAhu9UYe/5oCnN6maiCS9gdIgx4QM/${Date.now()}`), {

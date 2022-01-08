@@ -1,66 +1,85 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import ChatList from '../Components/ChatComponents/ChatList/ChatList';
 import ChatContent from '../Components/ChatComponents/ChatContent/ChatContent';
 import '../Styles/Home.scss';
-import { getCookie } from '../Services/cookie';
-import jwt_decode from "jwt-decode";
-import { db, firestore } from '../Components/firebase';
-import { ref, set, onValue, child, get } from 'firebase/database';
-import { onSnapshot, query, where, collection, orderBy } from 'firebase/firestore';
-import store from '../store';
-// import LoadingContext from '../App';
+
+import { getAllChats, getAllUserInApp } from '../Services/HomePageService';
+import LoadingComponent from '../Components/share/LoadingComponent/LoadingComponent';
+
+export const HomePageContext = React.createContext();
 
 export default function Home() {
-    const [currentUserId, setCurrentUserId] = useState('');
-    // const context = useContext(LoadingContext);
-    // console.log(context);
+    // declare component's state
+    const [chats, setChats] = useState([]);
+    const [users, setUsers] = useState([]);
+    const [messages, setMessages] = useState([]);
+
+    const [currentChatUserId, setCurrentChatUserId] = useState('');
+    const [currentChatUser, setCurrentChatUser] = useState({});
+    const [currentChatMessages, setCurrentChatMesssages] = useState([]);
 
     useEffect(() => {
-        //context.loadHandle(true);
-        const token = jwt_decode(getCookie("jwt"));
-        if (token) {
-            setCurrentUserId(token.id);
-        }
-        const userRef = collection(firestore, 'users');
-        let tempArray = [];
-        onSnapshot(userRef, (snapshot) => {
-            snapshot.docs.forEach((item) => {
-                tempArray.push({ ...item.data(), id: item.id });
-            })
-            store.dispatch({ type: 'SET_USERS_LIST', payload: tempArray });
-        })
-        
+        getAllChats(setChats);
+        getAllUserInApp(setUsers);
     }, []);
 
-    useEffect(async () => {
-        if (currentUserId) {
-            const dbRef = ref(db);
-            get(child(dbRef, `${currentUserId}`)).then((snapshot) => {
-                if (snapshot.exists()) {
-                    let array = [];
-                    const data = snapshot.val();
-                    const userArray = Object.keys(data);
-                    userArray.forEach((item) => {
-                        array.push({
-                            id: item,
-                            messages: Object.keys(data[item]).map((temp) => ({...data[item][temp], id: temp})).sort((a, b) => a.id < b.id)
-                        })
-                    })
-                    store.dispatch({ type: 'SET_CHAT_USERS', payload: array });
-                    //context.loadHandle(false);
-                } else {
-                    console.log("No data value");
-                }
-            }).catch((error) => {
-                console.log(error);
-            });
+    useEffect(() => {
+        var chatListData = [];
+        if (users.length && chats.length) {
+            chats.forEach((item) => {
+                let id = item.id;
+                chatListData.push({
+                    users: users.filter((item) => item.id === id).at(0),
+                    messages: chats.filter((item) => item.id === id).at(0).messages
+                })
+            })
         }
-    });
+        setMessages(chatListData);
+    }, [users, chats]);
 
-    return (
-        <div className="home-page">
-            <ChatList />
-            <ChatContent />
-        </div>
-    );
+    useEffect(() => {
+        if (messages.length) {
+            const firstUser = messages.at(0).users;
+            setCurrentChatUser(firstUser);
+            setCurrentChatUserId(firstUser.id);
+        }
+    }, [messages]);
+
+    useEffect(() => {
+        if (messages.length && currentChatUserId) {
+            const t = messages.filter((item) => item.users.id == currentChatUserId).at(0);
+            setCurrentChatMesssages(t.messages);
+            setCurrentChatUser(t.users); 
+        }
+    }, [currentChatUserId]);
+
+    const chooseChatUser = (id) => {
+        setCurrentChatUserId(id);
+    }
+
+    const submitHandle = (data) => {
+        console.log(data);
+    }
+
+    if (messages.length) {
+        return (
+            <HomePageContext.Provider value={{
+                messages: messages,
+                currentChatUserId: currentChatUserId,
+                currentChatMessages: currentChatMessages,
+                currentChatUser: currentChatUser,
+                sendHandle: submitHandle,
+                chooseChatUser: chooseChatUser
+            }}>
+                <div className="home-page">
+                    <ChatList />
+                    <ChatContent />
+                </div>
+            </HomePageContext.Provider>
+        );
+    } else {
+        return (
+            <LoadingComponent height={'100vh'} />
+        );
+    }
 }

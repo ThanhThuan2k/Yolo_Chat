@@ -1,33 +1,46 @@
-import { BsBellSlashFill } from 'react-icons/bs';
+import { useContext } from 'react';
+import { AiFillCheckCircle } from 'react-icons/ai';
 import ChatAvatar from '../ChatAvatar/ChatAvatar';
 import './ChatReview.scss';
+import { HomePageContext } from '../../../Pages/Home';
 
 export default function ChatReview(props) {
+    const context = useContext(HomePageContext);
+
     return (
-        <div className={props.active ? "chat-review active" : "chat-review"}>
+        <div id={props.id} className={context.currentChatUserId === props.id ? "chat-review active" : "chat-review"} onClick={() => context.chooseChatUser(props.id)}>
             <ChatAvatar avatar={props.avatar} displayOnline={true} online={true} />
             <div className="content">
                 <div className="title">
-                   {props.name} 
+                    {props.name}
                 </div>
                 <div className="message">
-                    Chiều nay đi quán ko ai biesest ddaua nef chuwfng nafo ddi nois tao
+                    {props.message}
                 </div>
             </div>
-            <div className="seen">
-                <img className="seen-avatar" src="https://picsum.photos/200" alt="" />
-            </div>
+            {
+                props.seen ? (
+                    <div className="seen">
+                        <img className="seen-avatar" src={props.avatar} alt="" />
+                    </div>
+                ) : (
+                    // <BsBellSlashFill className="icon turn-off-notification" />
+                    <AiFillCheckCircle className="icon sent" />
+                )
+            }
         </div>
     );
 }
 
 ChatReview.defaultProps = {
     avatar: 'https://picsum.photos/200',
-    name: 'Thanh Thuận',
-    message: 'Chiều nay đi quán ko',
+    name: '',
+    message: '',
     seen: false,
     notification: true,
     send: true,
     online: false,
-    active: false,
+    // active: false,
+    id: '',
+    onClick: null,
 }

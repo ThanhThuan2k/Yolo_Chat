@@ -1,8 +1,13 @@
-.chat-content{
+.chat-content {
     width: 70%;
-    .chat-content-container{
+    margin-top: 100px;
+    .chat-content-container {
         width: 100%;
         padding: 0 10px;
+        margin-bottom: 97px;
+        height: calc(100% - 197px);
+        // max-height: calc(100% - 197px);
         overflow-y: scroll;
+        padding-right: 30px;
     }
 }
