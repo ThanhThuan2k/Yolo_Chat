@@ -15,33 +15,35 @@ export default function ChatContentHeaders() {
         online: Date.now(),
     });
 
-    useEffect(() => {
-        const currentUser = context.currentChatUser;
-        setUser(currentUser);
-    })
-
-    return (
-        <div className="chat-content-header">
-            <ChatAvatar avatar={user.avatar} width="70px" displayOnline={true} online={true} />
-            <div className="title">
-                <div className="username">
-                    {user.displayName}
+    if (context.chat) {
+        const data = context.chat;
+        return (
+            <div className="chat-content-header">
+                <ChatAvatar avatar={data.photoURL} width="70px" displayOnline={true} online={true} />
+                <div className="title">
+                    <div className="username">
+                        {data.displayName}
+                    </div>
+                    <div className="last-online">
+                        Đang hoạt động
+                    </div>
                 </div>
-                <div className="last-online">
-                    Đang hoạt động
+                <div className="button-area">
+                    <button className="call">
+                        <BsTelephoneFill className="icon" />
+                    </button>
+                    <button className="call-video">
+                        <BsCameraVideoFill className="icon" />
+                    </button>
+                    <button className="open-window">
+                        <AiOutlineMenu className="icon" />
+                    </button>
                 </div>
             </div>
-            <div className="button-area">
-                <button className="call">
-                    <BsTelephoneFill className="icon" />
-                </button>
-                <button className="call-video">
-                    <BsCameraVideoFill className="icon" />
-                </button>
-                <button className="open-window">
-                    <AiOutlineMenu className="icon" />
-                </button>
-            </div>
-        </div>
-    );
+        );
+    }else{
+        return(
+            <div>Vui lofng chowif</div>
+        );
+    }
 }

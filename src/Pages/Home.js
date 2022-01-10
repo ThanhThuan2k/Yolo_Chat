@@ -2,74 +2,91 @@ import React, { useState, useEffect } from 'react';
 import ChatList from '../Components/ChatComponents/ChatList/ChatList';
 import ChatContent from '../Components/ChatComponents/ChatContent/ChatContent';
 import '../Styles/Home.scss';
-
-import { getAllChats, getAllUserInApp } from '../Services/HomePageService';
+import { db, firestore } from '../Components/firebase';
+import { ref, set, onValue, child, get } from "firebase/database";
+import { getAuth } from "firebase/auth";
+import { collection, query, where, onSnapshot, addDoc, Timestamp, orderBy } from 'firebase/firestore';
 import LoadingComponent from '../Components/share/LoadingComponent/LoadingComponent';
+import { useNavigate } from 'react-router-dom';
+import { getCookie } from '../Services/cookie';
 
 export const HomePageContext = React.createContext();
 
 export default function Home() {
-    // declare component's state
-    const [chats, setChats] = useState([]);
+    const [currentUserId, setCurrentUserId] = useState('');
     const [users, setUsers] = useState([]);
+    const [chat, setChat] = useState('');
     const [messages, setMessages] = useState([]);
-
-    const [currentChatUserId, setCurrentChatUserId] = useState('');
-    const [currentChatUser, setCurrentChatUser] = useState({});
-    const [currentChatMessages, setCurrentChatMesssages] = useState([]);
+    const navigate = useNavigate();
 
     useEffect(() => {
-        getAllChats(setChats);
-        getAllUserInApp(setUsers);
+        const auth = getAuth();
+        if (auth.currentUser) {
+            setCurrentUserId(auth.currentUser.uid);
+        } else {
+            navigate("/login");
+        }
     }, []);
 
     useEffect(() => {
-        var chatListData = [];
-        if (users.length && chats.length) {
-            chats.forEach((item) => {
-                let id = item.id;
-                chatListData.push({
-                    users: users.filter((item) => item.id === id).at(0),
-                    messages: chats.filter((item) => item.id === id).at(0).messages
-                })
+        if (currentUserId) {
+            // get all user
+            const userRef = collection(firestore, 'users');
+            const q = query(userRef, where('uid', 'not-in', [currentUserId]));
+            const unsub = onSnapshot(q, querySnapshot => {
+                let usersArray = [];
+                querySnapshot.forEach((item) => {
+                    usersArray.push({ ...item.data(), id: item.id });
+                });
+                setUsers(usersArray);
             })
+            return () => unsub();
         }
-        setMessages(chatListData);
-    }, [users, chats]);
+    }, [currentUserId]);
 
     useEffect(() => {
-        if (messages.length) {
-            const firstUser = messages.at(0).users;
-            setCurrentChatUser(firstUser);
-            setCurrentChatUserId(firstUser.id);
-        }
-    }, [messages]);
+        console.log(users);
+    }, [users]);
 
-    useEffect(() => {
-        if (messages.length && currentChatUserId) {
-            const t = messages.filter((item) => item.users.id == currentChatUserId).at(0);
-            setCurrentChatMesssages(t.messages);
-            setCurrentChatUser(t.users); 
-        }
-    }, [currentChatUserId]);
+    const selectUser = (user) => {
+        setChat(user);
+        const user1 = currentUserId;
+        const user2 = user.uid;
+        const id = user1 > user2 ? `${user1 + user2}` : `${user2 + user1}`;
+        const messageRef = collection(firestore, 'messages', id, 'chat');
+        const q = query(messageRef, orderBy('createAt', 'asc'));
 
-    const chooseChatUser = (id) => {
-        setCurrentChatUserId(id);
+        onSnapshot(q, querySnapshot => {
+            let messages = [];
+            querySnapshot.forEach((item) => {
+                messages.push(item.data());
+            })
+            setMessages(messages);
+        })
     }
 
-    const submitHandle = (data) => {
-        console.log(data);
+    const sendHandle = async (text) => {
+        console.log(text);
+        const user1 = currentUserId;
+        const user2 = chat.uid;
+        console.log(user1, user2);
+        const id = user1 > user2 ? `${user1 + user2}` : `${user2 + user1}`;
+        await addDoc(collection(firestore, `messages/${id}/chat`), {
+            content: text,
+            from: user1,
+            to: user2,
+            createAt: Timestamp.fromDate(new Date()),
+        });
     }
 
-    if (messages.length) {
+    if (users.length) {
         return (
             <HomePageContext.Provider value={{
+                users: users,
+                selectUser: selectUser,
+                chat: chat,
+                sendHandle: sendHandle,
                 messages: messages,
-                currentChatUserId: currentChatUserId,
-                currentChatMessages: currentChatMessages,
-                currentChatUser: currentChatUser,
-                sendHandle: submitHandle,
-                chooseChatUser: chooseChatUser
             }}>
                 <div className="home-page">
                     <ChatList />

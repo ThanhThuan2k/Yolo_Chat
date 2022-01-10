@@ -1,48 +1,36 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { AiOutlineMail, AiFillLock } from 'react-icons/ai';
 import { AiOutlineQuestionCircle, AiFillFacebook, AiOutlineGithub, AiFillEye, AiFillEyeInvisible } from 'react-icons/ai';
 import { FcGoogle } from 'react-icons/fc';
 import { FaUserTie } from 'react-icons/fa';
 import '../Styles/Register.scss';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button, Modal, Form } from 'react-bootstrap';
-import { db, app, firestore, storage } from '../Components/firebase';
-import { uploadBytesResumable, getDownloadURL, ref as storage_ref } from 'firebase/storage';
-import { collection, onSnapshot, addDoc, deleteDoc, doc, query, where } from 'firebase/firestore';
-import { useNavigate } from 'react-router-dom';
-import { setCookie } from '../Services/cookie';
-import { jwtEncode } from '../Services/jwtService';
-import { LoadingContext } from '../App';
-import { sha512 } from 'js-sha512';
-
+import { getAuth, createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import UploadAvatar from '../Components/UploadAvatar';
+import { LoadingContext } from '../App';
+import { storage, firestore } from '../Components/firebase';
+import { uploadBytesResumable, getDownloadURL, ref as storage_ref } from 'firebase/storage';
+import { collection, addDoc, query, where, orderBy, onSnapshot } from "firebase/firestore";
+import {toast, ToastContainer} from 'react-toastify';
 
 export default function Register() {
+    // create state for register
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [displayName, setDisplayName] = useState('');
-    const [gioiTinh, setGioiTinh] = useState('Ẩn');
-    const [avatar, setAvatar] = useState(null);
-
     const [emailError, setEmailError] = useState('');
     const [passwordError, setPasswordError] = useState('');
-    const [displayNameError, setDisplayNameError] = useState('');
-
-    // password input areas
     const [showPassword, setShowPassword] = useState(false);
-
-    // modal area
+    const [displayName, setDisplayName] = useState('');
+    const [gioiTinh, setGioiTinh] = useState('Ẩn');
+    const [showExplain, setShowExplain] = useState(true);
+    const [avatar, setAvatar] = useState(null);
+    const [displayNameError, setDisplayNameError] = useState('');
     const [avatarExplainShow, setAvatarExplainShow] = useState(false);
-    const navigate = useNavigate();
+    const [avatarURL, setAvatarURL] = useState('');
 
     const context = useContext(LoadingContext);
-
-    const getImage = (file) => {
-        setAvatar(file);
-    }
-    const deleteImage = () => {
-        setAvatar(null);
-    }
+    const navigate = useNavigate();
 
     const submitHandle = (e) => {
         e.preventDefault();
@@ -58,42 +46,34 @@ export default function Register() {
             setEmailError("Vui lòng nhập đúng định dạng email");
             return;
         } else {
-            const colRef = collection(firestore, 'users');
-            const q = query(colRef, where("email", "==", email));
-
-            let data = [];
-            onSnapshot(q, (snapshot) => {
-                snapshot.docs.forEach((doc) => {
-                    data.push({ ...doc.data(), id: doc.id });
-                })
-                if (data.length > 0) {
-                    setEmailError("Email này đã tồn tại");
-                    return;
+            setEmailError("");
+            if (!password) {
+                setPasswordError("Trường này không được để trống");
+                return;
+            } else if (password.length < 6) {
+                setPasswordError("Mật khẩu tối thiểu 6 kí tự");
+            } else {
+                setPasswordError("");
+                if (!displayName) {
+                    setDisplayNameError("Trường này không được để trống");
                 } else {
-                    setEmailError('');
-                    if (!password) {
-                        setPasswordError("Trường này không được để trống");
-                        return;
-                    } else {
-                        setPasswordError("");
-                    }
-
-                    if (!displayName) {
-                        setDisplayNameError("Trường này không được để trống");
-                        return;
-                    } else {
-                        setDisplayNameError("");
-                    }
                     context.loadHandle(true);
                     register();
                 }
-            });
+            }
         }
     }
 
-    const register = async () => {
+    const getImage = (file) => {
+        setAvatar(file);
+    }
+    const deleteImage = () => {
+        setAvatar(null);
+    }
+
+    const uploadImage = () => {
         if (avatar) {
-            const storageRef = storage_ref(storage, `/files/user/avatar/${avatar.name}`);
+            const storageRef = storage_ref(storage, `/files/${avatar.name}`);
             const uploadTask = uploadBytesResumable(storageRef, avatar);
 
             uploadTask.on("state_changed",
@@ -102,48 +82,59 @@ export default function Register() {
                     console.log(prog);
                 },
                 (error) => console.log(error),
-                async () => {
+                () => {
                     getDownloadURL(uploadTask.snapshot.ref)
-                        .then(async (url) => {
-                            const docRef = await addDoc(collection(firestore, "users"), {
-                                email: email,
-                                password: sha512(password),
-                                displayName: displayName,
-                                gioiTinh: gioiTinh,
-                                avatar: url,
-                                createAt: Date.now(),
-                                isOnline: true,
-                                lastOnline: Date.now(),
-                            }).then((value) => {
-                                var jwt = jwtEncode({ email: email, password: password, displayName: displayName, gioiTinh: gioiTinh, avatar: url });
-                                setCookie("jwt", jwt, 30);
-                                context.loadHandle(false);
-                                navigate("/");
-                            });
+                        .then(url => {
+                            console.log(url);
+                            setAvatarURL(url);
                         });
                 }
             );
         } else {
-            const defaultAvatar = "/share/avatar/default-user.png";
-            const docRef = await addDoc(collection(firestore, "users"), {
-                email: email,
-                password: sha512(password),
-                displayName: displayName,
-                gioiTinh: gioiTinh,
-                avatar: defaultAvatar,
-                createAt: Date.now(),
-                isOnline: true,
-                lastOnline: Date.now(),
-            }).then((value) => {
-                var jwt = jwtEncode({ email: email, password: password, displayName: displayName, gioiTinh: gioiTinh, avatar: defaultAvatar });
-                if (jwt) {
-                    setCookie("jwt", jwt, 30);
-                    context.loadHandle(false);
-                    navigate("/");
-                }
-            });
+            console.log("File not uploaded")
         }
     }
+
+    const register = () => {
+        // create auth variable
+        let auth = getAuth();
+        createUserWithEmailAndPassword(auth, email, password)
+            .then((userCredential) => {
+                // const user = userCredential.user;
+                uploadImage();
+            })
+            .catch(error => {
+                if (error.code == 'auth/email-already-in-use') {
+                    setEmailError("Email đã tồn tại");
+                }
+            })
+    }
+
+    useEffect( async () => {
+        if (avatarURL) {
+            let auth = getAuth();
+            const user = auth.currentUser;
+            
+            const thisUser = {
+                email: user.email,
+                displayName: displayName,
+                uid: user.uid,
+                photoURL: avatarURL,
+                phoneNumber: user.phoneNumber,
+                emailVerify: user.emailVerified,
+                createdAt: user.metadata.createdAt
+            };
+
+            try {
+                const docRef = await addDoc(collection(firestore, 'users'), thisUser);
+                context.loadHandle(false);
+                navigate("/");
+            } catch (error) {
+                console.log(error);
+                toast.error("Server lỗi kết nối, vui lòng thử lại sau hoặc kiểm tra đường truyền");
+            }
+        }
+    }, [avatarURL]);
 
     return (
         <>
@@ -245,6 +236,32 @@ export default function Register() {
                     <Button onClick={() => setAvatarExplainShow(false)}>Đóng</Button>
                 </Modal.Footer>
             </Modal>
+            <Modal show={showExplain}
+                onHide={() => setShowExplain(false)}
+                size="lg"
+                aria-labelledby="contained-modal-title-vcenter"
+                centered
+            >
+                <Modal.Header closeButton>
+                    <Modal.Title id="contained-modal-title-vcenter">
+                        Chào mừng đến với Yolo Chat
+                    </Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <p style={{ fontSize: '1.3rem' }}>
+                        - Website được tạo ra nhằm mục đích phục vụ nghiên cứu học tập, không nhằm mục đích kinh doanh. Trong quá trình sử dụng website, vui lòng không sử dụng ngôn từ đả kích, xúc phạm người khác. <br />
+                        - Website đang trong quá trình phát triển, vui lòng để lại đóng góp ý kiến <a href="#">tại đây</a> hoặc pull requests <a href="https://github.com/ThanhThuan2k/Yolo_Chat.git" target="_blank">https://github.com/ThanhThuan2k/Yolo_Chat.git</a> <br />
+                        - Email: thuanhuynh.190800@gmail.com <br />
+                        - Facebook: <a href="https://www.facebook.com/rong.bay.31586/" target="_blank">https://www.facebook.com/rong.bay.31586/</a> <br />
+                        - Github: <a href="https://github.com/ThanhThuan2k" target="_blank">https://github.com/ThanhThuan2k</a> <br /> <br />
+                        Tác giả: Huỳnh Thanh Thuận (DINO Yolo)
+                    </p>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button onClick={() => setShowExplain(false)}>Đóng</Button>
+                </Modal.Footer>
+            </Modal>
+            <ToastContainer />
         </>
     );
 }

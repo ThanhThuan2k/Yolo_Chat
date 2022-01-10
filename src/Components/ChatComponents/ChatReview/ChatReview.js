@@ -8,7 +8,7 @@ export default function ChatReview(props) {
     const context = useContext(HomePageContext);
 
     return (
-        <div id={props.id} className={context.currentChatUserId === props.id ? "chat-review active" : "chat-review"} onClick={() => context.chooseChatUser(props.id)}>
+        <div id={props.id} className={context.currentChatUserId === props.id ? "chat-review active" : "chat-review"} onClick={() => context.selectUser(props.user)}>
             <ChatAvatar avatar={props.avatar} displayOnline={true} online={true} />
             <div className="content">
                 <div className="title">
@@ -43,4 +43,5 @@ ChatReview.defaultProps = {
     // active: false,
     id: '',
     onClick: null,
+    user: {},
 }

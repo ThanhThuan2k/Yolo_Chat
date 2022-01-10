@@ -72,4 +72,8 @@ const getAllUserInApp = (callback) => {
     })
 }
 
+const getUserWithUId = (uid, callback) => {
+    
+}
+
 export { getCurrentUser, getCurrentUserID, getAllChats, getAllUserInApp };

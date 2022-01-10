@@ -13,17 +13,12 @@ export default function ChatInput() {
 
     const submitHandle = (e) => {
         e.preventDefault();
-        const data = {
-            content: message,
-            createAt: Date.now(),
-            seen: false,
-            from: meId
-        }
-        context.sendHandle(data);
+        context.sendHandle(message);
+        setMessage("");
     }
 
     return (
-        <form className="chat-input" onSubmit={submitHandle} >
+        <form className="chat-input" onSubmit={(e) => submitHandle(e)} >
             <div className="input-area">
                 <input type="text" placeholder="Aa" className="input-element" value={message} onChange={(e) => setMessage(e.target.value)} />
             </div>

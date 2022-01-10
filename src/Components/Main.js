@@ -3,6 +3,7 @@ import { ref, set, onValue, child, get } from "firebase/database";
 import { db, app, firestore, storage } from './firebase';
 import { collection, addDoc, query, where, orderBy, onSnapshot } from "firebase/firestore";
 import { uploadBytesResumable, getDownloadURL, ref as storage_ref } from 'firebase/storage';
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 export default function Main() {
     const [file, setFile] = useState(null);
@@ -28,11 +29,11 @@ export default function Main() {
         //         from: '5oCnN6maiCS9gdIgx4QM',
         //     });
 
-        // set(ref(db, `5oCnN6maiCS9gdIgx4QM/QbNJ2bdPwXb1ddsJCcRr/${Date.now()}`), {
+        // set(ref(db, `9U9rYqdCPUNLtOxus7Euehtfcra2/lK7bvnSie4UV4RQ7tzx5pFSIMcI2/${Date.now()}`), {
         //     createAt: Date.now(),
-        //     content: 'Hoom nay laf ngafy gif thees',
+        //     content: 'Cái này ',
         //     seen: false,
-        //     from: 'QbNJ2bdPwXb1ddsJCcRr',
+        //     from: '9U9rYqdCPUNLtOxus7Euehtfcra2',
         // });
         // }
 
@@ -75,8 +76,36 @@ export default function Main() {
         }
     }
 
+    const check = () => {
+        // const starCountRef = ref(db, '5oCnN6maiCS9gdIgx4QM/QbNJ2bdPwXb1ddsJCcRr');
+        const starCountRef = ref(db, '5oCnN6maiCS9gdIgx4QM');
+        onValue(starCountRef, (snapshot) => {
+            const data = snapshot.val();
+            console.log(data);
+        });
+    }
+
+    const check2 = () => {
+        const auth = getAuth();
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+              // User is signed in, see docs for a list of available properties
+              // https://firebase.google.com/docs/reference/js/firebase.User
+              const uid = user.uid;
+              console.log(user);
+              // ...
+            } else {
+              // User is signed out
+              // ...
+              console.log("user is sign out");
+            }
+          });
+    }
+
     useEffect(() => {
-        writeUserData();
+        // check2();
+        // check();
+        // writeUserData();
         // uploadImage();
     }, [file]);
 

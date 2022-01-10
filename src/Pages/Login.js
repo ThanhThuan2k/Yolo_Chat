@@ -3,18 +3,15 @@ import { LoadingContext } from '../App';
 import "../Styles/Login.scss";
 import { AiOutlineMail, AiFillLock, AiFillEye, AiFillEyeInvisible, AiFillFacebook, AiOutlineGithub } from 'react-icons/ai';
 import { FcGoogle } from 'react-icons/fc';
-import { db, firestore } from '../Components/firebase';
 import { Link, useNavigate } from 'react-router-dom';
-import { collection, onSnapshot, addDoc, deleteDoc, doc, query, where } from 'firebase/firestore';
-import { sha512 } from 'js-sha512';
 import { getCookie, setCookie } from '../Services/cookie';
-import { jwtEncode } from '../Services/jwtService';
-import {toast, ToastContainer} from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import 'react-toastify/dist/ReactToastify.css';
 
 export default function Login() {
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
+    const [username, setUsername] = useState('thuanhuynh.190800@gmail.com');
+    const [password, setPassword] = useState('123456');
     const [usernameError, setUsernameError] = useState('');
     const [passwordError, setPasswordError] = useState('');
     const [rememberMe, setRememberMe] = useState(true);
@@ -25,7 +22,8 @@ export default function Login() {
     const context = useContext(LoadingContext);
 
     useEffect(() => {
-        if (getCookie("jwt")) {
+        const auth = getAuth();
+        if (auth.currentUser) {
             navigate("/");
         }
     }, []);
@@ -51,35 +49,37 @@ export default function Login() {
         if (!password) {
             setPasswordError("Trường này không được để trống");
             return;
-        } else {
+        } else if (password.length < 6) {
+            setPasswordError("Mật khẩu quá ngắn");
+            return;
+        }
+        else {
             setPasswordError('');
         }
         // login
         context.loadHandle(true);
-        const colRef = collection(firestore, 'users');
-        // get data with query
-        const q = query(colRef, where("email", "==", username), where("password", "==", sha512(password)));
-
-        onSnapshot(q, (snapshot) => {
-            let data = [];
-            snapshot.docs.forEach((doc) => {
-                data.push({ ...doc.data(), id: doc.id });
-            })
-
-            if (data.length === 1) {
-                let user = data.shift();
-                let jwt = jwtEncode(user);
-                setCookie("jwt", jwt, 30);
+        const auth = getAuth();
+        signInWithEmailAndPassword(auth, username, password)
+            .then((userCredential) => {
+                // context.loadHandle(false);
+                const user = userCredential.user;
                 context.loadHandle(false);
                 navigate("/");
-            }else{
+            })
+            .catch((error) => {
                 context.loadHandle(false);
-                toast.error("Không tìm thấy tài khoản", {
-                    position: toast.POSITION.BOTTOM_LEFT,
-                    autoClose: 5000
-                })
-            }
-        })
+                switch (error.code) {
+                    case 'auth/user-not-found':
+                        toast.error("Không tìm thấy tài khoản");
+                        return;
+                    case 'auth/wrong-password':
+                        toast.error("Sai mật khẩu");
+                        return;
+                    default:
+                        toast.error(error.code);
+                        return;
+                }
+            });
     }
 
     const signInWithGoogle = () => {
